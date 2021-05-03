@@ -8,10 +8,11 @@ export const Chat = (props) => {
 
     const printMessages = () => {
 
+        //debugger
+
         if (props.messages) {
-            const messageItem = props.messages[0]
-            return <div className={classes.message}><span style={{fontWeight: '700'}}>{messageItem.name}</span> : {messageItem.message}</div>
-        }
+            return props.messages.map(messageItem => 
+            <div className={classes.message}><span style={{ fontWeight: '700' }}>{messageItem.name}</span> : {messageItem.message}</div>)}
 
     }
 
@@ -26,11 +27,11 @@ export const Chat = (props) => {
             <div className={classes.feed}>
                 {printMessages()}
             </div>
-            
+
 
             <div className={classes.inputForm}>
-                <input classname={classes.nameInput} onChange={(e) => setName(e.target.value) } value={name} placeholder='Your name'></input>
-                <input classname={classes.textInput} onChange={(e) => setInput(e.target.value)} value={input} placeholder='Enter message'></input>
+                <input className={classes.nameInput} onChange={(e) => setName(e.target.value)} value={name} placeholder='Your name'></input>
+                <input className={classes.textInput} onChange={(e) => setInput(e.target.value)} value={input} placeholder='Enter message'></input>
                 <button onClick={() => props.addMessage(name, input)}>Send</button>
             </div>
 

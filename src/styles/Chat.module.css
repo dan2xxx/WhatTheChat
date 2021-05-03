@@ -13,11 +13,11 @@
 }
 
 .nameInput {
-    width: 20%;
+    width: 100px;
 }
 
 .textInput {
-    width: 80%;
+    width: 50%;
 }
 
 .message {

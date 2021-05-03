@@ -3,7 +3,7 @@ import Web3 from 'web3'
 import React from 'react'
 import { Chat } from './Chat'
 import { abi } from './abi'
-import { entropyToMnemonic } from '@ethersproject/hdnode'
+
 
 const address = '0x7896E010042efD99dCB76C3f150156C1544C4030'
 
@@ -36,7 +36,16 @@ function App() {
   }
 
   const getMessages = async (instance) => {
-    setMessages(...messages, [(await instance.methods.messages('0').call())])
+    const length = await instance.methods.messagesLength().call()
+    let loadedMessages = []
+
+    for (let i=0; i<length; i++) {
+      loadedMessages.push((await instance.methods.messages(i).call()))
+    }
+
+    setMessages(loadedMessages)
+
+    
   }
 
   const addMessage = async (name, message) => {
@@ -50,11 +59,10 @@ function App() {
 
   React.useEffect(() => {
 
-    web3.eth.getAccounts().then((res) => {
+      web3.eth.getAccounts().then((res) => {
       setAccount(res) 
     })
     
-
     if (abi) {
       
       var instance = new web3.eth.Contract(abi, address)
@@ -98,8 +106,8 @@ function App() {
         ? <Chat messages={messages} addMessage={addMessage} />
         : <h1>Initializing...</h1>}
 
-      {window.ethereum 
-      ? <button onClick={connectToMetaMask}>Connect</button>
+      {window.ethereum && !web3.currentProvider.isMetaMask
+      ? <button className='connectButton' onClick={connectToMetaMask}>Connect to metamask manualy </button>
       : null}
       
 
