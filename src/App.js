@@ -8,49 +8,42 @@ import { abi } from './abi'
 const address = '0x7896E010042efD99dCB76C3f150156C1544C4030'
 
 if (window.ethereum) {
-   window.ethereum.enable()
-   var web3 = new Web3(window.ethereum)
-   console.log('Provider: metamask')
+  window.ethereum.enable()
+  var web3 = new Web3(window.ethereum)
+  console.log('Provider: metamask')
 } else {
   var web3 = new Web3('wss://rinkeby.infura.io/ws/v3/5bdef920720a4ae9bc517ee52259b412')
   console.log('Provider: infura')
 }
 
 
-
 function App() {
 
   const [messages, setMessages] = React.useState([])
-  const [event, setEvent] = React.useState(null)
   const [contract, setContract] = React.useState(null)
   const [account, setAccount] = React.useState('')
 
 
   const connectToMetaMask = async () => {
-    console.log('Connecting wallet')
     if (window.ethereum) {
-      
       await window.ethereum.enable()
       web3 = new Web3(window.ethereum)
     }
   }
 
   const getMessages = async (instance) => {
+
     const length = await instance.methods.messagesLength().call()
     let loadedMessages = []
 
-    for (let i=0; i<length; i++) {
+    for (let i = 0; i < length; i++) {
       loadedMessages.push((await instance.methods.messages(i).call()))
     }
-
     setMessages(loadedMessages)
-
-    
   }
 
   const addMessage = async (name, message) => {
-    
-    
+
     const resp = await contract.methods.addMessage(name, message).send({
       from: `${account}`
     })
@@ -59,25 +52,26 @@ function App() {
 
   React.useEffect(() => {
 
-      web3.eth.getAccounts().then((res) => {
-      setAccount(res) 
+    //setting current account to state
+    web3.eth.getAccounts().then((res) => {
+      setAccount(res)
     })
-    
+
+    //crating contract instance
     if (abi) {
-      
       var instance = new web3.eth.Contract(abi, address)
       setContract(instance)
       getMessages(instance).then(console.log('messages collected'))
     }
 
-    //-----------------------------------------------------------------------------------------------
+    //subscribe to event
     var subscription = web3.eth.subscribe('logs', {
       address: '0x7896E010042efD99dCB76C3f150156C1544C4030',
       topics: ['0xd139c8de132b273212c7748176bea519724854faab652bbd83b7967a75f1ac0f']
     }, function (error, result) {
       if (!error)
-      console.log(result)
-      console.log('reload messages!')
+        console.log(result)
+      console.log('Reload messages')
       getMessages(instance)
     })
       .on("connected", function (NewMessage) {
@@ -89,7 +83,7 @@ function App() {
       .on("changed", function (log) {
       });
 
-    //console.log(subscription)
+    console.log(subscription)
 
   }, [])
 
@@ -107,9 +101,9 @@ function App() {
         : <h1>Initializing...</h1>}
 
       {window.ethereum && !web3.currentProvider.isMetaMask
-      ? <button className='connectButton' onClick={connectToMetaMask}>Connect to metamask manualy </button>
-      : null}
-      
+        ? <button className='connectButton' onClick={connectToMetaMask}>Connect to metamask manualy </button>
+        : null}
+
 
     </div>
   );

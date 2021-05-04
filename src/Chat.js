@@ -5,18 +5,28 @@ export const Chat = (props) => {
 
     const [name, setName] = React.useState('')
     const [input, setInput] = React.useState('')
+    const feed = React.useRef()
+
+    const toDate = (unixDate) => {
+        let date = new Date(unixDate * 1000)
+        let hours = date.getHours()
+        let minutes = "0" + date.getMinutes()
+        let seconds = "0" + date.getSeconds()
+        let formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2)
+        return formattedTime
+    }
 
     const printMessages = () => {
 
-        //debugger
-
         if (props.messages) {
-            return props.messages.map(messageItem => 
-            <div className={classes.message}><span style={{ fontWeight: '700' }}>{messageItem.name}</span> : {messageItem.message}</div>)}
-
+            return props.messages.map(messageItem =>
+                <div className={classes.message}>{toDate(messageItem.timestamp)} <span style={{ fontWeight: '700' }}>{messageItem.name}</span> : {messageItem.message}</div>)
+        }
     }
 
-
+    React.useEffect(() => {
+        feed.current.scrollTop = feed.current.scrollTop + (feed.current.scrollHeight - feed.current.clientHeight)
+    }, [props.messages])
 
 
 
@@ -24,7 +34,7 @@ export const Chat = (props) => {
         <div className={classes.container}>
 
             <h1>What the chat?</h1>
-            <div className={classes.feed}>
+            <div className={classes.feed} ref={feed}>
                 {printMessages()}
             </div>
 
