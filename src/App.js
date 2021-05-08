@@ -7,7 +7,7 @@ import { Admin } from './Admin'
 import { abi, tokenAbi } from './abi'
 
 
-const address = '0xb72AEBB7f505005eca4eaCf068FAA296e0609298'
+const address = '0x8531Cf6EC8B96eC3e7452542cfea0C328F6fbed0'
 const tokenAddress = '0x23489422cE5bf94ED42b42248cd04246c64d8719'
 
 function AppContainer() {
@@ -190,7 +190,7 @@ function App(props) {
 
     //subscribe to chat event
     props.web3.eth.subscribe('logs', {
-      address: '0xb72AEBB7f505005eca4eaCf068FAA296e0609298',
+      address: '0x8531Cf6EC8B96eC3e7452542cfea0C328F6fbed0',
       topics: ['0xd139c8de132b273212c7748176bea519724854faab652bbd83b7967a75f1ac0f']
     }, function (error, result) {
       if (!error)
@@ -225,7 +225,7 @@ return (
       </div>
       : <h1>Initializing...</h1>}
 
-      {isOwner ? <Admin contract={contract} account={account}/> : null}
+      {isOwner ? <Admin token={token} contract={contract} account={account} address={address}/> : null}
 
     
 
