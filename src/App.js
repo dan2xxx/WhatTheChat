@@ -7,7 +7,7 @@ import { Admin } from './Admin'
 import { abi, tokenAbi } from './abi'
 
 
-const address = '0x8531Cf6EC8B96eC3e7452542cfea0C328F6fbed0'
+const address = '0x2d1f77cD7DF5cdfB9d86E8883115dfa8D3a826e0'
 const tokenAddress = '0x23489422cE5bf94ED42b42248cd04246c64d8719'
 
 function AppContainer() {
@@ -52,15 +52,6 @@ function App(props) {
   const [isOwner, setIsOwner] = React.useState(false)
 
 
-  const transferOwnership = async (newOwner) => {
-    let res = await props.web3.eth.getAccounts()
-
-    if (res.length > 0) {
-      const [from] = res
-      contract.methods.transferOwnership(newOwner).send({from})
-    }
-}
-
   const addMessage = (message) => {
 
     props.web3.eth.getAccounts().then((res) => {
@@ -79,7 +70,7 @@ function App(props) {
     let loadedMessages = []
 
     if (arrayOfEvents.length === 0) {
-      return 
+      return
     }
 
     if (arrayOfEvents.length < 20) {
@@ -107,8 +98,8 @@ function App(props) {
         setIsOwner(true)
       }
     }
- 
-}
+
+  }
 
   const getOwner = async (contract) => {
     const owner = await contract.methods.owner().call()
@@ -116,54 +107,16 @@ function App(props) {
     ifOwner(owner)
   }
 
-  const isPremium = async () => {
-    const res = await props.web3.eth.getAccounts()
+  const mint = async () => {
+    let res = await props.web3.eth.getAccounts()
+
 
     if (res.length > 0) {
-      let name = await contract.methods.registeredAddresses(res[0]).call()
-      if (name) {
-        return true
-      } else {
-        return false
-      }
-
+      token.methods.mint(res[0], '100000000000000000000').send({
+        from: `${res}`
+      })
     }
   }
-
-  const buy = async (name, amount, otherAddress) => {
-    
-    const wei = `${amount}000000000000000000`
-    let res = await props.web3.eth.getAccounts()
-    
-    
-      if (res.length > 0) {
-        const [from] = res
-        let addressToPremium
-
-        if (otherAddress) {
-          addressToPremium = otherAddress
-        } else {
-          addressToPremium = from
-        }
-        await token.methods.approve(address, wei).send({from})
-        await contract.methods.register(name, wei, addressToPremium).send({from})
-      }
-    }    
-
-  const mint = async () => {
-      let res = await props.web3.eth.getAccounts()
-      
-      
-        if (res.length > 0) {
-          token.methods.mint(res[0], '100000000000000000000').send({
-            from: `${res}`
-          })
-        }
-      }   
-
-
-
-
 
   React.useEffect(() => {
 
@@ -179,7 +132,7 @@ function App(props) {
     if (tokenAbi) {
       const tokenInstance = new props.web3.eth.Contract(tokenAbi, tokenAddress)
       setToken(tokenInstance)
-      }
+    }
 
     //setting account
     props.web3.eth.getAccounts().then((res) => {
@@ -190,47 +143,63 @@ function App(props) {
 
     //subscribe to chat event
     props.web3.eth.subscribe('logs', {
-      address: '0x8531Cf6EC8B96eC3e7452542cfea0C328F6fbed0',
+      address: address,
       topics: ['0xd139c8de132b273212c7748176bea519724854faab652bbd83b7967a75f1ac0f']
     }, function (error, result) {
       if (!error)
-      console.log('Reload messages')
+        console.log('Reload messages')
       getEvents(instance)
     })
       .on("connected", function (eventId) {
-        console.log(eventId);
+        console.log(`Event connected with ${eventId} `);
       })
       .on("data", function (data) {
-        console.log(data);
+        console.log('Reload messages')
+        getEvents(instance)
       })
       .on("changed", function (log) {
       });
 
-  
-
-      
 
 
 
-}, [props.web3])
 
 
-return (
-  <div className="App">
 
-    {messages.length > 0
-      ? <div>
-        <Chat messages={messages} addMessage={addMessage} chatOwner={chatOwner} />
-        <Registration buyPremium={buy} notification={premNotification} mint={mint} />
-      </div>
-      : <h1>Initializing...</h1>}
+  }, [props.web3])
 
-      {isOwner ? <Admin token={token} contract={contract} account={account} address={address}/> : null}
 
-    
+  return (
+    <div className="App">
 
-  </div>
-);
+      {messages.length > 0
+        ? <div>
+          <Chat messages={messages} addMessage={addMessage} chatOwner={chatOwner} />
+          <Registration
+            toWei={Web3.utils.toWei}
+            notification={premNotification}
+            mint={mint} contract={contract}
+            account={account}
+            token={token}
+            address={address} 
+
+          />
+        </div>
+        : <h1>Initializing...</h1>}
+
+      {isOwner ? (
+        <Admin
+          token={token}
+          contract={contract}
+          account={account}
+          address={address}
+        />
+      ) : null}
+
+
+
+    </div>
+  );
 }
 
 export default AppContainer;

@@ -28,10 +28,11 @@ export const Admin = (props) => {
         getBallance()
     }
 
-    React.useState(() => {
+    React.useEffect(() => {
         getBallance()
-    })
+    },[])
 
+    
     return (
         <div>
 
